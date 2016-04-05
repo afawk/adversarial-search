@@ -27,41 +27,59 @@ class MinimaxPlayer(Player):
 
     def minimax(self, level, board, player):
         next_move  = None
-        best_score = -99999
+        best_score = -99999 if player == self.me() else 99999
 
         cells = find_empty_cells(board)
 
+        if level == 0:
+            (score, wins) = self.score(board)
+
+            for x in cells:
+                if x not in wins:
+                    return (x, score)
+
+            return (cells[0], score)
+
         for x in cells:
-            _cells = board[:]
-            _cells[x] = self.me()
+            _cells    = board[:]
+            _cells[x] = player
 
-            (winner, moves) = find_winner(_cells)
+            inverse_player = self.me() if player == self.opp() else self.opp()
 
-            if winner == self.me():
-                score = self.score(moves)
+            (_, score) = self.minimax(level - 1, _cells, inverse_player)
 
+            if player == self.me():
                 if score > best_score:
                     best_score = score
                     next_move = x
 
-            _cells[x] = self.opp()
-            (winner, moves) = find_winner(_cells)
+            elif player == self.opp():
+                score = score * -1
 
-            if winner == self.opp():
-                score = self.score(moves)
-
-                if score > best_score:
+                if score < best_score:
                     best_score = score
                     next_move = x
-
-        if next_move == None:
-            next_move = cells[0]
 
         return (next_move, best_score)
 
-    def score(self, moves):
-        len_m = len(moves)
+    def score(self, board):
+        score = 1
+        move_win = []
 
-        print(`moves`)
+        for i in board:
+            (winner, move) = find_winner(board)
 
-        return len_m
+            if winner != None:
+                move_win.append(i)
+
+                if len(move_win) == 1:
+                    score = 1
+                elif len(move_win) == 2:
+                    score = 10
+                else:
+                    score = 100
+
+                if winner != self.me():
+                    score = score * -1
+
+        return (score, move_win)
