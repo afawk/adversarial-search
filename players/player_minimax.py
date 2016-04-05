@@ -22,23 +22,46 @@ class MinimaxPlayer(Player):
     # ------------------------------------------
 
     def get_next_move(self, board):
+        (next_move, _) = self.minimax(2, board, self.me())
+        return next_move
 
-        # TODO Here you will implement the Minimax algorithm.
-        # This method may return the best movement based on Minimax score
-        # for the current board.
+    def minimax(self, level, board, player):
+        next_move  = None
+        best_score = -99999
 
-        # If you want, you can use here some helper functions:
-        #
-        # - find_winner(board): This method checks if someone wins in the
-        #   parametrized board and return a tuple (Winner, Winner movement).
-        #
-        # - find_empty_cells(board): This method checks if there are available
-        #   moves in the parametrized board. It returns an array containing
-        #   the available moves.
-        #
-        # - print_board(board): This method helps you debugging your code.
-        #   It prints a board filled with the executed moves.
-        #   WARNING: printing can slow your code. Use it just for debug.
-        #
+        cells = find_empty_cells(board)
 
-        return None
+        for x in cells:
+            _cells = board[:]
+            _cells[x] = self.me()
+
+            (winner, moves) = find_winner(_cells)
+
+            if winner == self.me():
+                score = self.score(moves)
+
+                if score > best_score:
+                    best_score = score
+                    next_move = x
+
+            _cells[x] = self.opp()
+            (winner, moves) = find_winner(_cells)
+
+            if winner == self.opp():
+                score = self.score(moves)
+
+                if score > best_score:
+                    best_score = score
+                    next_move = x
+
+        if next_move == None:
+            next_move = cells[0]
+
+        return (next_move, best_score)
+
+    def score(self, moves):
+        len_m = len(moves)
+
+        print(`moves`)
+
+        return len_m
